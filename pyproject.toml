@@ -1,0 +1,16 @@
+[project]
+name = "fast-api-monolith-example"
+version = "0.1.0"
+description = "Example for fast api monolith architecture"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alchemy>=20.5",
+    "mypy>=2.4.0",
+    "psycopg>=3.3.6",
+    "pwdlib>=0.3.1",
+    "pydantic>=2.13.5",
+    "pyjwt>=2.15.1",
+    "ruff>=0.16.10",
+    "sqlmodel>=0.0.47",
+]
