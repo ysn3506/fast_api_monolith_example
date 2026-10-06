@@ -6,12 +6,16 @@ from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, Integer, Table
 from sqlmodel import Base, Field, Optional, Relationship, SQLModel
 
-from .services.model import Service
+from .auth import User
+from .services import Service
 
-project_service_table = Table("project_service", Base.metadata,
+project_service_table = Table(
+    "project_service",
+    Base.metadata,
     Column("project_id", Integer, ForeignKey("project.id"), primary_key=True),
     Column("service_id", Integer, ForeignKey("service.id"), primary_key=True),
 )
+
 
 class ProjectStatus(str, Enum):
     ACTIVE = "active"
@@ -32,17 +36,23 @@ class Project(SQLModel, table=True):
     created_by: Annotated[int, Field(foreign_key="user.id")]
     status: Annotated[ProjectStatus, Field(default=ProjectStatus.ACTIVE)]
     slug: Annotated[str, Field(unique=True)]
-    relationships: Annotated[list[Service], Relationship(back_populates="projects")]
+    relationships: [
+        Annotated[list[Service], Relationship(back_populates="projects")],
+        Annotated[list[User], Relationship(back_populates="authorized_projects")],
+    ]
+
 
 class ProjectCreate(BaseModel):
     name: str
     description: str
-    status: ProjectStatus = ProjectStatus.ACTIVE 
+    status: ProjectStatus = ProjectStatus.ACTIVE
+
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     status: Optional[ProjectStatus] = None
+
 
 class ProjectDelete(BaseModel):
     id: int
