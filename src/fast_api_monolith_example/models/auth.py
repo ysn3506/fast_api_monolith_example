@@ -2,9 +2,9 @@ from datetime import date, datetime
 from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, SecretStr
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
-from .projects import Project
+from .projects import Project, ProjectUser
 
 
 class User(SQLModel, table=True):
@@ -16,7 +16,9 @@ class User(SQLModel, table=True):
     password: Annotated[SecretStr, Field()]
     created_at: Annotated[datetime, Field(default=datetime.now)]
     updated_at: Annotated[datetime, Field(default=datetime.now)]
-    authorized_projects: Annotated[list[Project], Field(min_items=0)]
+    authorized_projects: list[Project] = Relationship(
+        back_populates="authorized_users", link_model=ProjectUser
+    )
 
 
 class UserRegister(BaseModel):

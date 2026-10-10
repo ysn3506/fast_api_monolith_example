@@ -4,7 +4,7 @@ from typing import Annotated
 from pydantic import BaseModel
 from sqlmodel import Field, Optional, Relationship, SQLModel
 
-from .projects import Project
+from .projects import Project, ProjectService
 
 
 class Service(SQLModel, table=True):
@@ -14,7 +14,9 @@ class Service(SQLModel, table=True):
     description: Annotated[str, Field(min_length=2, max_length=1000)]
     created_at: Annotated[datetime, Field(default=datetime.now)]
     updated_at: Annotated[datetime, Field(default=datetime.now)]
-    projects: list[Project] = Relationship(back_populates="project")
+    included_projects: list[Project] = Relationship(
+        back_populates="services", link_model=ProjectService
+    )
 
 
 class ServiceCreate(BaseModel):

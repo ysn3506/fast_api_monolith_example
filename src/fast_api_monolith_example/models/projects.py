@@ -1,20 +1,26 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Annotated
 
 from pydantic import BaseModel
-from sqlalchemy import Column, ForeignKey, Integer, Table
-from sqlmodel import Base, Field, Optional, Relationship, SQLModel
+from sqlmodel import Field, Optional, Relationship, SQLModel
 
 from .auth import User
 from .services import Service
 
-project_service_table = Table(
-    "project_service",
-    Base.metadata,
-    Column("project_id", Integer, ForeignKey("project.id"), primary_key=True),
-    Column("service_id", Integer, ForeignKey("service.id"), primary_key=True),
-)
+
+def utc_now() -> datetime:
+    return datetime.now(UTC)
+
+
+class ProjectUser(SQLModel, table=True):
+    project_id: int | None = Field(default=None, foreign_key="project.id", primary_key=True)
+    user_id: int | None = Field(default=None, foreign_key="user.id", primary_key=True)
+
+
+class ProjectService(SQLModel, table=True):
+    project_id: int | None = Field(default=None, foreign_key="project.id", primary_key=True)
+    service_id: int | None = Field(default=None, foreign_key="service.id", primary_key=True)
 
 
 class ProjectStatus(str, Enum):
@@ -36,10 +42,12 @@ class Project(SQLModel, table=True):
     created_by: Annotated[int, Field(foreign_key="user.id")]
     status: Annotated[ProjectStatus, Field(default=ProjectStatus.ACTIVE)]
     slug: Annotated[str, Field(unique=True)]
-    relationships: [
-        Annotated[list[Service], Relationship(back_populates="projects")],
-        Annotated[list[User], Relationship(back_populates="authorized_projects")],
-    ]
+    services: list[Service] = Relationship(
+        back_populates="included_projects", link_model=ProjectService
+    )
+    authorized_users: list[User] = Relationship(
+        back_populates="authorized_projects", link_model=ProjectUser
+    )
 
 
 class ProjectCreate(BaseModel):

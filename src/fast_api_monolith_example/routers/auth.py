@@ -5,6 +5,8 @@ from .models.auth import UserLogin, UserRegister
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+@router.get('/token', )
+
 @router.post("/auth/register")
 def register(request: UserRegister):
     return {"message": "User registered successfully"}
